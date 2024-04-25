@@ -9,4 +9,6 @@ console.log('all good');
   export const printUser = (_req: Request, res: Response) => {
     res.send('printing');
 console.log('printing');
+console.log('printing');
+
   };
