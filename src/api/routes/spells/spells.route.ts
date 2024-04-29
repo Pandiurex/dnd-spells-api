@@ -1,15 +1,13 @@
 import express from 'express';
 import {
-	getSpellByName,
-	createNewSpell,
+	factorySpells,
 	getAllSpells,
-	getSpellFromDB,
+	getSpellByName,
 } from '../../controllers/spells.controller';
 const spellsRouter = express.Router();
 
 spellsRouter.get('/spells', getAllSpells);
-spellsRouter.get('/spells/:name', getSpellByName);
-spellsRouter.get('/new-spell', createNewSpell);
-spellsRouter.get('/spell', getSpellFromDB);
+spellsRouter.get('/factory', factorySpells);
+spellsRouter.get('/spell/:id', getSpellByName);
 
 export default spellsRouter;

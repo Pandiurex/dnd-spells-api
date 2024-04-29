@@ -14,6 +14,7 @@ export interface ISpellResponse {
 	attack_type: string;
 	damage: Damage;
 	school: School;
+	dc: Dc;
 	classes: Class[];
 	subclasses: Subclass[];
 	url: string;
@@ -22,6 +23,25 @@ export interface ISpellResponse {
 export interface Damage {
 	damage_type: DamageType;
 	damage_at_slot_level: DamageAtSlotLevel;
+	damage_at_character_level: DamageAtCharacterLevel;
+}
+
+export interface DamageAtCharacterLevel {
+	'1': string;
+	'5': string;
+	'11': string;
+	'17': string;
+}
+
+export interface Dc {
+	dc_type: DcType;
+	dc_success: string;
+}
+
+export interface DcType {
+	index: string;
+	name: string;
+	url: string;
 }
 
 export interface DamageType {

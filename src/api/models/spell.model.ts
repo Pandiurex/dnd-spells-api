@@ -80,6 +80,36 @@ const spellSchema = new Schema({
 				type: 'String',
 			},
 		},
+		damage_at_character_level: {
+			'1': {
+				type: 'String',
+			},
+			'5': {
+				type: 'String',
+			},
+			'11': {
+				type: 'String',
+			},
+			'17': {
+				type: 'String',
+			},
+		},
+	},
+	dc: {
+		dc_type: {
+			index: {
+				type: 'String',
+			},
+			name: {
+				type: 'String',
+			},
+			url: {
+				type: 'String',
+			},
+		},
+		dc_success: {
+			type: 'String',
+		},
 	},
 	school: {
 		index: {
@@ -103,6 +133,6 @@ const spellSchema = new Schema({
 	},
 });
 
-const SpellModel = mongoose.model('Spells', spellSchema);
+const SpellModel = mongoose.model('spells', spellSchema);
 
 export default SpellModel;

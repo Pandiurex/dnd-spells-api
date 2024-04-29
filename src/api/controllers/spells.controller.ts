@@ -1,55 +1,73 @@
 import { NextFunction, Request, Response } from 'express';
 import { ISpellResponse } from '../interfaces/spell.response.i';
-import SpellModel from '../models/user.model';
+import SpellModel from '../models/spell.model';
+import { AppError } from '../../utils/error.handler';
 
-export function getAllSpells(_req: Request, res: Response, next: NextFunction) {
-	const myHeaders = new Headers();
-	myHeaders.append('Accept', 'application/json');
-
-	fetch(`${process.env.DND_API}`)
-		.then((response) => {
-			if (!response.ok) {
-				throw new Error('Error getting data');
-			}
-			return response.json(); // Parsear la respuesta JSON
-		})
-		.then((data: ISpellResponse) => {
-			res.send(data);
-			next();
-		})
-		.catch((error) => console.error(error));
-}
-
-export function getSpellByName(
-	req: Request,
+export async function getAllSpells(
+	_req: Request,
 	res: Response,
 	next: NextFunction
 ) {
-	const myHeaders = new Headers();
-	myHeaders.append('Accept', 'application/json');
+	try {
+		const spellsResponse = await fetch(`${process.env.DND_API}`);
+		const spellsData = await spellsResponse.json();
+		res.send(spellsData);
+		next();
+	} catch (error) {
+		if (error instanceof AppError) {
+			console.error(`Database error (${error.statusCode}): ${error.message}`);
+		} else if (error instanceof Error) {
+			console.error(error.message);
+		}
+	}
+}
 
-	fetch(`${process.env.DND_API}${req.params.name}`)
-		.then((response) => {
-			if (!response.ok) {
-				throw new Error('Error getting data');
+export async function factorySpells(_req: Request, _res: Response) {
+	try {
+		const response = await fetch(`${process.env.DND_API}`);
+		const spells = await response.json();
+		spells.results.forEach(async (spell: any) => {
+			const spellResponse = await fetch(`${process.env.DND_API}${spell.index}`);
+			const spellData: ISpellResponse = await spellResponse.json();
+			const spellDataDb = new SpellModel(spellData);
+			try {
+				const spells = await SpellModel.findOne({ index: spellDataDb.index });
+				if (!spells) {
+					console.log(spellData.index);
+					await spellDataDb.save();
+				}
+			} catch (error) {
+				if (error instanceof AppError) {
+					console.error(
+						`Database error (${error.statusCode}): ${error.message}`
+					);
+				} else if (error instanceof Error) {
+					console.error(error.message);
+				}
 			}
-			return response.json();
-		})
-		.then((data: ISpellResponse) => {
-			res.send(data);
-			next();
-		})
-		.catch((error) => console.error(error));
+		});
+	} catch (error) {
+		if (error instanceof AppError) {
+			console.error(`Database error (${error.statusCode}): ${error.message}`);
+		} else if (error instanceof Error) {
+			console.error(error.message);
+		}
+	}
 }
+export async function getSpellByName(req: Request, res: Response) {
+	try {
+		const spellId = req.params.id;
+		const spell = await SpellModel.find({
+			index: spellId,
+		});
+		console.log(spell);
 
-export function createNewSpell(_req: Request, res: Response) {
-	res.send('printing');
-	console.log('printing');
-}
-export async function getSpellFromDB(_req: Request, res: Response) {
-	const spell = await SpellModel.find({
-		index: 'acid-arrow',
-	});
-	res.send(spell);
-	console.log(spell);
+		res.send(spell);
+	} catch (error) {
+		if (error instanceof AppError) {
+			console.error(`Database error (${error.statusCode}): ${error.message}`);
+		} else if (error instanceof Error) {
+			console.error(error.message);
+		}
+	}
 }
